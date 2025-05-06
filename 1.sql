@@ -11,12 +11,12 @@ DESC goods;
 
 rename table goods to product;
 
-create table students (
-    id int unsigned auto_increment primary key,
-    name VARCHAR(20),
-    age TINYINT,
-    mobile char(11)
-) default charset = utf8;
+# create table students (
+#     id int unsigned auto_increment primary key,
+#     name VARCHAR(20),
+#     age TINYINT,
+#     mobile char(11)
+# ) default charset = utf8;
 
 alter table students add address VARCHAR(255);
 
@@ -32,7 +32,7 @@ alter table product drop shop;
 
 drop table category;
 
-drop table categories;
+# drop table categories;
 
 CREATE TABLE category (
     cid int auto_increment primary key,
@@ -40,21 +40,20 @@ CREATE TABLE category (
     description VARCHAR(255)
 ) default charset = utf8;
 
-insert into
-    category
-values (null, '服饰', '秋冬5折')
-insert into
-    category (cid, cname)
-VALUES (null, '电器')
+insert into category values (null, '服饰', '秋冬5折');
+
+insert into category (cid, cname) VALUES (null, '电器');
+
 insert into
     category
 values (null, '玩具', '奥迪双转'),
-    (null, '蔬菜', '新鲜蔬菜')
+    (null, '蔬菜', '新鲜蔬菜');
+
 insert into
     category (cid, cname)
 values (null, '化妆品'),
     (null, '书籍'),
-    (null, '运动')
+    (null, '运动');
 
 update category set cname = '家庭' where cid = '1';
 
@@ -282,7 +281,7 @@ SELECT * FROM category c join goods g on c.id = g.category_id;
 
 SELECT * FROM category c LEFT JOIN goods g on c.id = g.category_id;
 
-SELECT * from students UNION ALL SELECT * from students
+SELECT * from students UNION ALL SELECT * from students;
 
 create table areas (
     id char(6) PRIMARY key,
@@ -422,8 +421,228 @@ from students;
 select
     id,
     name,
-    gender,
-    score,
-    sum(score) over () as `sum`,
-    score / sum(score) over () as radio
+    Gender,
+    Score,
+    sum(Score) over () as `sum`,
+    Score / sum(Score) over () as radio
 from students;
+
+select id, views, ntile(4) over (
+        order by views desc
+    ) as 'quartile'
+from auction;
+
+with
+    tmp as (
+        select id, views, NTILE(4) over (
+                order by views desc
+            ) as 'quartile'
+        from auction
+    )
+select *
+from tmp
+where
+    quartile = 1;
+
+select * from sales;
+
+select month, revenue, sum(revenue) OVER (
+        rows BETWEEN UNBOUNDED PRECEDING
+        AND UNBOUNDED FOLLOWING
+    ) as amount
+from sales;
+
+select month, revenue, sum(revenue) OVER (
+        rows BETWEEN 2 preceding
+        and current row
+    ) as amount
+from sales;
+
+select month, revenue, sum(revenue) OVER (
+        rows BETWEEN 2 preceding
+        and 2 FOLLOWING
+    ) as amount
+from sales;
+
+select month, revenue, LAG(revenue) OVER () as lag_1_revenue
+from sales;
+
+select
+    month,
+    revenue,
+    LAG(revenue, 1, 0) OVER () as lag_1_revenue,
+    revenue - LAG(revenue, 1, 0) OVER () as difference
+from sales;
+
+select month, revenue, LEAD(revenue) OVER () as lead_1_revenue
+from sales;
+
+select month, revenue, LEAD(revenue, 2, 0) OVER () as lead_1_revenue
+from sales;
+
+select month, revenue, FIRST_VALUE(revenue) over () as first_revenue
+from sales;
+
+select month, revenue, LAST_VALUE(revenue) over (
+        order by month
+    ) as last_revenue
+from sales;
+
+select month, revenue, LAST_VALUE(revenue) over (
+        order by
+            month rows BETWEEN UNBOUNDED PRECEDING
+            and UNBOUNDED FOLLOWING
+    ) as last_revenue
+from sales;
+
+help ROUND;
+
+select round(3.1415, 2);
+
+select ceil(3.1415);
+
+select floor(3.1415);
+
+select mod(10, 3);
+
+select abs(-10);
+
+select FORMAT(1234567.89, 2);
+
+select TRUNCATE (3.131453, 2);
+
+select POW(2, 3);
+
+select RAND();
+
+select month, revenue, sum(revenue) OVER () as amount, round(
+        revenue / sum(revenue) OVER () * 100, 2
+    ) as radio
+from sales;
+
+select LOWER('HELLO');
+
+select UPPER('hello');
+
+select CONCAT('hello', 'world');
+
+select CONCAT_WS('-', 'hello', 'world');
+
+select REPLACE ( 'hello world', 'world', 'java' );
+
+select LEFT('hello world', 5);
+
+select RIGHT('hello world', 5);
+
+select SUBSTRING('hello world', 1, 5);
+
+select SUBSTRING('hello world', 7);
+
+select SUBSTRING('hello world', -5);
+
+select SUBSTR('hello world', 1, 5);
+
+select LENGTH('hello world');
+
+select CHAR_LENGTH('hello world');
+
+DROP TABLE IF EXISTS `users`;
+
+CREATE TABLE `users` (
+    `user_id` int(11) DEFAULT NULL,
+    `name` varchar(40) DEFAULT NULL
+) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+
+LOCK TABLES `users` WRITE;
+
+INSERT INTO `users` VALUES (1, 'aLice'), (2, 'bOB');
+
+UNLOCK TABLES;
+
+select * from users;
+
+select
+    user_id,
+    name,
+    UPPER(LEFT(name, 1)) as left_name,
+    LOWER(SUBSTR(name, 2)) as right_name,
+    CONCAT_WS(
+        '',
+        UPPER(LEFT(name, 1)),
+        LOWER(SUBSTR(name, 2))
+    ) as newname
+from users;
+
+select NOW();
+
+select DATE_ADD(NOW(), INTERVAL 8 HOUR);
+
+select DATE_SUB(NOW(), INTERVAL 8 HOUR);
+
+select YEAR(NOW());
+
+select MONTH(NOW());
+
+select DAY(NOW());
+
+select DATE_FORMAT(NOW(), '%Y-%m-%d');
+
+select UNIX_TIMESTAMP(NOW());
+
+select * FROM logins;
+
+select * from logins where YEAR(time_stamp) = 2020;
+
+select user_id, max(time_stamp) as last_login_time
+from logins
+where
+    YEAR(time_stamp) = 2020
+GROUP BY
+    user_id;
+
+select * from tb_score;
+
+select
+    name,
+    course,
+    score,
+    CASE
+        WHEN score >= 90 THEN 'A'
+        WHEN score >= 80 THEN 'B'
+        WHEN score >= 70 THEN 'C'
+        WHEN score >= 60 THEN 'D'
+        ELSE 'F'
+    END as grade
+from tb_score;
+
+select * from products;
+
+update products
+set
+    price = (
+        CASE
+            WHEN price >= 3000 THEN price * 0.9
+            ELSE price * 1.2
+        END
+    );
+
+select * from score;
+
+select `学号`, max(if(`科目` = '语文', `成绩`, null)) as `语文`, max(if(`科目` = '数学', `成绩`, null)) as `数学`, max(if(`科目` = '英语', `成绩`, null)) as `英语`
+FROM score
+GROUP BY
+    `学号`;
+
+select * from w_score;
+
+select `学号`, `语文` as `成绩`, '语文' as `科目`
+from w_score
+union
+select `学号`, `数学` as `成绩`, '数学' as `科目`
+from w_score
+union
+select `学号`, `英语` as `成绩`, '英语' as `科目`
+from w_score
+order by `学号`, `科目`;
+
+show ENGINES;
